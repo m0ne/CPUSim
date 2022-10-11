@@ -1,0 +1,39 @@
+// modified and extended instructions from https://github.com/AlexAltea/capstone.js
+/*
+Instructions on how to cross compile a C Library to JavaScript using Emscripten.
+The instructions are written for MacOS only but should be similar for other Systems.
+It also assumes a basic understanding of Emscripten setup: https://emscripten.org/docs/getting_started/index.html
+Also check setupEmscripten.txt in this repo.
+*/
+
+// instructions work with:
+//    commit 75c34477675318ab3423a0c8236eb96b8abed39b of capstone.js
+//    commit f9c6a90489be7b3637ff1c7298e45efafe7cf1b9 of the capstone submodule
+//    version 2.0.7 / commit d7a29d82b320e471203b69d43aaf03b5 of Emscripten sdk
+
+git clone https://github.com/AlexAltea/capstone.js.git
+cd capstone.js
+git submodule update --init
+// choose the appropriate branch or commit of the repo and submodule
+
+npm install
+
+// setup Emscripten environment (look up the command for your system)
+source "/Path/To/emsdk/emsdk_env.sh"
+
+// find your "emsdk" path and export it (set an environment variable for your console. look up the command for your system)
+export EMSCRIPTEN="/Path/To/emsdk/upstream/emscripten/"
+
+// copy the patched files from the directory and subdirectory "/libraryPatches/capstone.js/patchedFiles" of this repository
+// the patched files work for commit 75c34477675318ab3423a0c8236eb96b8abed39b of capstone.js and commit f9c6a90489be7b3637ff1c7298e45efafe7cf1b9 of the capstone submodule
+cp Path/To/This/Repository/libraryPatches/capstone.js/patchedFiles/build.py build.py
+cp Path/To/This/Repository/libraryPatches/capstone.js/patchedFiles/capstone/cs.c capstone/cs.c
+
+// build the library with python 2.7 (later versions do not work with the commits above)
+python2.7 build.py X86
+
+// the output of the last command should look like this
+/Path/To/emsdk/upstream/emscripten//emcc -Os --memory-init-file 0 capstone/libcapstone.a -s EXPORTED_FUNCTIONS="['_malloc', '_free', '_cs_open', '_cs_disasm', '_cs_free', '_cs_close', '_cs_option', '_cs_group_name', '_cs_insn_name', '_cs_insn_group', '_cs_reg_name', '_cs_errno', '_cs_support', '_cs_version', '_cs_strerror', '_cs_disasm_ex', '_cs_disasm_iter', '_cs_malloc', '_cs_reg_read', '_cs_reg_write', '_cs_op_count', '_cs_op_index', '_print_insn_detail']" -s EXTRA_EXPORTED_RUNTIME_METHODS="['ccall', 'getValue', 'setValue', 'writeArrayToMemory', 'UTF8ToString']" -s ALLOW_MEMORY_GROWTH=1 -s MODULARIZE=1 -s WASM=0 -s EXPORT_ES6=1 -s USE_ES6_IMPORT_META=0 -o src/libcapstone-x86.out.js
+
+
+// the final library is located at "src/libcapstone-x86.out.js"

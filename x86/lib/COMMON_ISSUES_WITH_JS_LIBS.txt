@@ -1,0 +1,5 @@
+When you made changes to the JS libraries and have issues running or building
+this project and see random symbols in the console and linters issues.
+Make sure to add the following line at the top of all external JS libraries:
+
+/* eslint-disable */

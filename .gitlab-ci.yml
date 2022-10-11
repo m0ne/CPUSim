@@ -1,0 +1,67 @@
+# ------------ CI Stages ------------------------
+stages:
+  - build
+  - lint
+  - unit-tests
+  - deploy
+
+# ------------ Build Front End -------------------
+build:
+ stage: build
+ image: node:17
+ artifacts:
+   untracked: true
+ cache:
+   paths:
+     - node_modules/
+ script:
+   - cd x86
+   - export NODE_OPTIONS=--max_old_space_size=4096
+   - npm install
+   - npm run build:prod
+
+# ------------ End of Build Front End ------------
+
+# ------------ Lint Front End --------------------
+lint:
+ stage: lint
+ image: node:17
+ dependencies:
+   - build
+ script:
+   - cd x86
+   - export NODE_OPTIONS=--max_old_space_size=4096
+   - npm run lint
+# ------------ End of Lint Front End -------------
+
+# ------------ Unit Test Front End ---------------
+tests:
+ stage: unit-tests
+ image: node:17
+ dependencies:
+   - build
+ script:
+   - cd x86
+   - export NODE_OPTIONS=--max_old_space_size=4096
+   - npm run test:unit
+# ------------ End of Unit Test Front End --------
+
+# ------------ Deploy Front End ------------------
+pages: # the job must be named pages
+  stage: deploy
+  image: node:17
+  dependencies:
+    - build 
+  script:
+    - ls
+    - rm -rf public
+    - mkdir public
+    - cp -r x86/dist/* public
+    - ls
+    - ls public
+  artifacts:
+    paths:
+      - public # artifact path must be /public for GitLab Pages to pick it up
+  only:
+    - master
+# ------------ End of Deploy Front End -----------

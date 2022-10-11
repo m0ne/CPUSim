@@ -1,0 +1,27 @@
+// From https://emscripten.org/docs/tools_reference/emsdk.html?highlight=version
+
+/*
+Setup Emscripten version 2.0.7
+The instructions are written for MacOS only but should be similar for other Systems.
+*/
+
+git clone https://github.com/emscripten-core/emsdk.gi
+cd emsdk
+./emsdk install 2.0.7
+./emsdk activate 2.0.7
+source ./emsdk_env.sh
+
+// show the used version
+./emsdk list --old
+
+// shows the used version with * oder (*) next to it
+// at the time of making this guide the following was installed
+/*
+
+2.0.7    INSTALLED
+*    releases-upstream-d7a29d82b320e471203b69d43aaf03b560eedc54-64bit	INSTALLED
+*    sdk-releases-upstream-d7a29d82b320e471203b69d43aaf03b560eedc54-64bit	INSTALLED
+*    node-14.15.5-64bit       	INSTALLED
+*    python-3.7.4-2-64bit     	INSTALLED
+
+*/

@@ -1,0 +1,40 @@
+/*
+Instructions on how to cross compile a C Library to JavaScript using Emscripten.
+The instructions are written for MacOS only but should be similar for other Systems.
+It also assumes a basic understanding of Emscripten setup: https://emscripten.org/docs/getting_started/index.html
+Also check setupEmscripten.txt in this repo.
+*/
+
+// instructions work with:
+//    commit 6d95cc8d296862b67dd7d9fd94c676065b202c1d of nasm and ndisasm
+//    version 2.0.7 / commit d7a29d82b320e471203b69d43aaf03b5 of Emscripten sdk
+
+git clone https://github.com/netwide-assembler/nasm.git
+// it would be wise to choose an appropriate stable branch here
+cd nasm
+
+// setup Emscripten environment (look up the command for your system)
+source "/Absolute/Path/To/emsdk/emsdk_env.sh"
+
+sh autogen.sh
+emconfigure ./configure
+emmake make
+
+// in the console search for the last compiler instructions that build nasm (ends with "nasm asm/nasm.o libnasm.a") and disasm (ends with "ndisasm disasm/ndisasm.o libnasm.a")
+// copy and modify those two commands
+
+// add the following after emcc
+-s WASM=0 -s MODULARIZE=1 -s EXPORT_ES6=1 -s USE_ES6_IMPORT_META=0 -s 'EXTRA_EXPORTED_RUNTIME_METHODS=["cwrap", "ccall", "FS", "callMain"]' -s 'EXPORTED_FUNCTIONS=["_main"]'  -s FORCE_FILESYSTEM=1 -Oz --memory-init-file 0
+
+// remove "-O2" and "-g" to reduce size
+
+// the commands should now look something like this
+/Absolute/Path/To/emsdk/upstream/emscripten/emcc -s WASM=0 -s MODULARIZE=1 -s EXPORT_ES6=1 -s USE_ES6_IMPORT_META=0 -s 'EXTRA_EXPORTED_RUNTIME_METHODS=["cwrap", "ccall", "FS", "callMain"]' -s 'EXPORTED_FUNCTIONS=["_main"]'  -s FORCE_FILESYSTEM=1 -Oz --memory-init-file 0 -std=c17 -Werror=unknown-warning-option -fwrapv -U__STRICT_ANSI__ -fno-common -Werror=attributes -ffunction-sections -fdata-sections -fvisibility=hidden -Wall -W -pedantic -Wc99-compat -Wc99-extensions -Wno-long-long -Wno-shift-negative-value -Werror=implicit -Werror=missing-braces -Werror=return-type -Werror=trigraphs -Werror=pointer-arith -Werror=strict-prototypes -Werror=missing-prototypes -Werror=missing-declarations -Werror=comment -Werror=vla -DHAVE_CONFIG_H -I. -I. -I./include -I./include -I./x86 -I./x86 -I./asm -I./asm -I./disasm -I./disasm -I./output -I./output -Wl,--gc-sections -o nasm asm/nasm.o libnasm.a
+
+/Absolute/Path/To/emsdk/upstream/emscripten/emcc -s WASM=0 -s MODULARIZE=1 -s EXPORT_ES6=1 -s USE_ES6_IMPORT_META=0 -s 'EXTRA_EXPORTED_RUNTIME_METHODS=["cwrap", "ccall", "FS", "callMain"]' -s 'EXPORTED_FUNCTIONS=["_main"]'  -s FORCE_FILESYSTEM=1 -Oz --memory-init-file 0 -std=c17 -Werror=unknown-warning-option -fwrapv -U__STRICT_ANSI__ -fno-common -Werror=attributes -ffunction-sections -fdata-sections -fvisibility=hidden -Wall -W -pedantic -Wc99-compat -Wc99-extensions -Wno-long-long -Wno-shift-negative-value -Werror=implicit -Werror=missing-braces -Werror=return-type -Werror=trigraphs -Werror=pointer-arith -Werror=strict-prototypes -Werror=missing-prototypes -Werror=missing-declarations -Werror=comment -Werror=vla -DHAVE_CONFIG_H -I. -I. -I./include -I./include -I./x86 -I./x86 -I./asm -I./asm -I./disasm -I./disasm -I./output -I./output -Wl,--gc-sections -o ndisasm disasm/ndisasm.o libnasm.a
+
+mv nasm nasm.js
+mv ndisasm ndisasm.js
+
+// add the following line at the beginning of both files:
+/* eslint-disable */

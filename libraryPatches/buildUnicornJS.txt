@@ -1,0 +1,42 @@
+// modified and extended instructions from https://github.com/AlexAltea/unicorn.js
+/*
+Instructions on how to cross compile a C Library to JavaScript using Emscripten.
+The instructions are written for MacOS only but should be similar for other Systems.
+It also assumes a basic understanding of Emscripten setup: https://emscripten.org/docs/getting_started/index.html
+Also check setupEmscripten.txt in this repo.
+*/
+
+// instructions work with:
+//    commit 7ccd46b951f1df4c35f540acc5d5bc030a6f593d of unicorn.js
+//    commit 0bebb3e1839118e7b8cae5b91d497e3ae2a62148 of the unicorn submodule
+//    version 2.0.7 / commit d7a29d82b320e471203b69d43aaf03b5 of Emscripten sdk
+
+git clone https://github.com/AlexAltea/unicorn.js.git
+cd unicorn.js
+git submodule update --init
+// choose the appropriate branch or commit of the repo and submodule
+
+npm install
+
+// setup Emscripten environment (look up the command for your system)
+source "/Path/To/emsdk/emsdk_env.sh"
+
+// open build.py and replace the following:
+/*
+
+    cmd += ' -s WASM=1'
+    cmd += ' -s EXPORT_NAME="\'MUnicorn\'"'
+
+*/  with:
+/*
+
+    cmd += ' -s WASM=0'
+    cmd += ' -s EXPORT_ES6=1'
+    cmd += ' -s USE_ES6_IMPORT_META=0'
+
+*/
+
+python3 build.py build x86
+
+// add the following line to the first line of the file src/libunicorn-x86.out.js :
+/* eslint-disable */
