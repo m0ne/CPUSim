@@ -6,7 +6,7 @@ Powered by [Unicorn.js](https://alexaltea.github.io/unicorn.js/), [Capstone.js](
 ![Logo](./Logo.png)
 
 ## Try it!
-You can try the simulator [here](https://m0ne.github.io/CPUSimulator/#/editor).
+You can try the simulator [here](https://m0ne.github.io/CPUSim/#/editor).
 
 ## Features
 
